@@ -4,11 +4,16 @@ import { getMaxId } from "../../utils/boardUtils";
 import { useGameContext } from "../Game/Game";
 import { Tile } from "../Interfaces";
 import ScoreBox from "../ScoreBox";
+import Button from "../Button";
 import { ACTIONTYPE, ScoresState } from "./Interfaces";
 
 import "./ScoresContainer.scss";
 
-export const ScoresContainer = () => {
+interface ScoresContainerProps {
+  address: string;
+  onDisconnect: ()=>void;
+}
+export const ScoresContainer = (props: ScoresContainerProps) => {
   const { gameState } = useGameContext();
 
   const [state, dispatch] = useGameLocalStorage(
@@ -36,12 +41,15 @@ export const ScoresContainer = () => {
         <ScoreBox title="SCORE" score={state.score} />
         <div className="addScore" id="additionScore"></div>
       </div>
-
       <ScoreBox title="BEST" score={state.bestScore} />
+      {props.address && props.address.length > 0 ? <ScoreBox title={ellipseAddress(props.address)} score="Disconnect" onClick={props.onDisconnect}/> : <></>}
     </div>
   );
 };
 
+function ellipseAddress(address = "", width = 10): string {
+  return `${address.slice(0, width)}...${address.slice(-width)}`;
+}
 const initState = (tiles: Tile[] = []): ScoresState => {
   return {
     score: 0,

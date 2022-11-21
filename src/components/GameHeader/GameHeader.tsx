@@ -17,9 +17,15 @@ const GameDescription = () => {
   );
 };
 
-export const GameHeader = () => {
+interface GameHeaderProps {
+  isConnected: boolean;
+  onClickConnect: ()=>void;
+  onClickDisconnect: ()=>void;
+  address: string;
+}
+export const GameHeader = (props: GameHeaderProps) => {
   const { dispatch } = useGameContext();
-
+  console.log("game Header ", props.isConnected)
   return (
     <div className="header">
       <div className="gameIntro">
@@ -27,12 +33,12 @@ export const GameHeader = () => {
         <GameDescription />
       </div>
       <div className="actions">
-        <ScoresContainer />
+        <ScoresContainer onDisconnect={props.onClickDisconnect} address={props.address}/>
         <Button
           id="restartGameBtn"
-          onClick={(_) => dispatch({ type: "restart" })}
+          onClick={props.isConnected ? (_) => dispatch({ type: "restart" }) : props.onClickConnect}
         >
-          New Game
+          {props.isConnected ? "New Game" : "Connect Wallet"}
         </Button>
       </div>
     </div>
