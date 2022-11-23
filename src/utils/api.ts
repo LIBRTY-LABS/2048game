@@ -1,10 +1,26 @@
 import { IAuthTokens, TokenRefreshRequest, applyAuthTokenInterceptor } from 'axios-jwt'
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 
-const BASE_URL = 'http://ec2-13-232-100-141.ap-south-1.compute.amazonaws.com:8000'
+const BASE_URL = 'http://localhost:8000'//'http://ec2-13-232-100-141.ap-south-1.compute.amazonaws.com:8000'
 
+
+export class Axios {
+  private static instance: Axios;
+  public axiosInstance: AxiosInstance
+  private constructor() { 
+    this.axiosInstance = axios.create({ baseURL: BASE_URL })
+    applyAuthTokenInterceptor(this.axiosInstance, { header: 'Authorization',
+    headerPrefix:'Bearer ',requestRefresh }) 
+  }
+  public static getInstance(): Axios {
+    if (!Axios.instance) {
+        Axios.instance = new Axios();
+    }
+    return Axios.instance;
+}
+}
 // 1. Create an axios instance that you wish to apply the interceptor to
-export const axiosInstance = axios.create({ baseURL: BASE_URL })
+//export const axiosInstance = axios.create({ baseURL: BASE_URL })
 
 // 2. Define token refresh function.
 const requestRefresh: TokenRefreshRequest = async (refreshToken: string): Promise<IAuthTokens | string> => {
@@ -24,4 +40,4 @@ const requestRefresh: TokenRefreshRequest = async (refreshToken: string): Promis
 }
 
 // 3. Add interceptor to your axios instance
-applyAuthTokenInterceptor(axiosInstance, { requestRefresh })
+//applyAuthTokenInterceptor(axiosInstance, { requestRefresh })

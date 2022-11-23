@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
 import useGameLocalStorage from "../../hooks/useLocalStorage";
 import { getMaxId } from "../../utils/boardUtils";
-import { useGameContext } from "../Game/Game";
+import { useGameContext } from "../App/App";
 import { Tile } from "../Interfaces";
 import ScoreBox from "../ScoreBox";
 import Button from "../Button";
 import { ACTIONTYPE, ScoresState } from "./Interfaces";
 
 import "./ScoresContainer.scss";
+import { Axios } from "../../utils/api";
+import { getAccessToken } from "axios-jwt";
 
 interface ScoresContainerProps {
   address: string;
@@ -35,10 +37,27 @@ export const ScoresContainer = (props: ScoresContainerProps) => {
     }
   }, [state]);
 
+  const onScoreClick = () => {
+    if(state.tokenGranted) return
+
+    const req = {
+      "address" : gameState.accountAddress,
+      "tokens" : state.score.toString() + "00000000000000"
+    }
+    console.log("access token:", getAccessToken())
+    Axios.getInstance().axiosInstance.post('/wallet/tokenGrant', req, {
+      headers: {
+        Authorization: 'Bearer ' + getAccessToken()
+      }
+    }).then((resp) => {
+      console.log("tokenGrantResp", resp)
+      dispatch({ type: "tokenGrant"});
+    })
+  }
   return (
     <div className="scoresContainer">
       <div style={{ position: "relative" }}>
-        <ScoreBox title="SCORE" score={state.score} />
+        <ScoreBox title="SCORE" score={state.score} onClick={() => onScoreClick()} />
         <div className="addScore" id="additionScore"></div>
       </div>
       <ScoreBox title="BEST" score={state.bestScore} />
@@ -56,6 +75,7 @@ const initState = (tiles: Tile[] = []): ScoresState => {
     newPoints: 0,
     bestScore: 0,
     tiles,
+    tokenGranted: false,
   };
 };
 
@@ -65,6 +85,9 @@ const containsTile = (tiles: Tile[], tile: Tile): boolean => {
 
 const stateReducer = (state: ScoresState, action: ACTIONTYPE) => {
   switch (action.type) {
+    case "tokenGrant": {
+      return {...state, tokenGranted: true}
+    }
     case "change": {
       const tiles = action.payload;
 
@@ -106,10 +129,10 @@ const stateReducer = (state: ScoresState, action: ACTIONTYPE) => {
       const score = state.score + newPoints;
       const bestScore = Math.max(score, state.bestScore);
 
-      return { tiles, newPoints, score, bestScore };
+      return { tiles, newPoints, score, bestScore, tokenGranted: state.tokenGranted };
     }
     default: {
-      throw new Error(`Unhandled action type: ${action.type}`);
+      throw new Error(`Unhandled action type: ${action}`);
     }
   }
 };

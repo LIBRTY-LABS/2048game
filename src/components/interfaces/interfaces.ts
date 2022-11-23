@@ -20,7 +20,13 @@ export interface Tile {
 export type GameContextActionType =
   | { type: "restart" }
   | { type: "continue" }
-  | { type: "move"; payload: Direction };
+  | { type: "move"; payload: Direction }
+  | { type: "setAccount"; payload: string}
+  | { type : "setConnector"; payload: WalletConnect}
+  | { type: "setConnected"; payload: boolean}
+  | { type: "setChainId"; payload: number}
+  | { type: "resetConnection" }
+  | { type: "tokenDeducted" };
 
 export type GameStatus = "WIN" | "GAME_OVER" | "IN_PROGRESS" | "PLAY_AFTER_WIN";
 
@@ -28,14 +34,12 @@ export interface GameState {
   tiles: Tile[];
   lastMove: Direction;
   status: GameStatus;
-}
-
-export interface IAppState {
+  tokenPaid: boolean;
+  tokenGranted: boolean;
+  accountAddress: string;
   connector: WalletConnect | null;
   connected: boolean;
   chainId: number;
-  accounts: string[];
-  address: string;
 }
 
 export interface IGameContext {

@@ -1,9 +1,9 @@
 import { isLoggedIn, setAuthTokens, clearAuthTokens, getAccessToken, getRefreshToken } from 'axios-jwt'
-import { axiosInstance } from './api'
+import { Axios } from './api'
 
 // 4. Post email and password and get tokens in return. Call setAuthTokens with the result.
 const login = async (params: any) => {
-  const response = await axiosInstance.post('/auth/login', params)
+  const response = await Axios.getInstance().axiosInstance.post('/auth/login', params)
 
   // save tokens to storage
   setAuthTokens({
