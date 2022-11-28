@@ -27,14 +27,28 @@ import { KEYBOARD_ARROW_TO_DIRECTION_MAP } from "../../constants/constants";
 const GameContext = React.createContext<IGameContext>(null);
 
 const getGameStatus = (tiles: Tile[]): GameStatus => {
+  const {scores: {score}} = JSON.parse(window.localStorage.getItem('2048game'));
+
   if (isGameOver(tiles)) {
+    window?.['ReactNativeWebView']?.postMessage(JSON.stringify({
+      score,
+      gameStatus: 'GAME_OVER'
+    }));
     return "GAME_OVER";
   }
 
   if (isGameWon(tiles)) {
+    window?.['ReactNativeWebView']?.postMessage(JSON.stringify({
+      score,
+      gameStatus: 'WIN'
+    }));
     return "WIN";
   }
 
+  window?.['ReactNativeWebView']?.postMessage(JSON.stringify({
+    score,
+    gameStatus: 'IN_PROGRESS'
+  }));
   return "IN_PROGRESS";
 };
 
